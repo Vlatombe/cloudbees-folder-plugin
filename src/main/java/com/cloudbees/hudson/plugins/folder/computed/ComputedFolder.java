@@ -216,13 +216,10 @@ public abstract class ComputedFolder<I extends TopLevelItem> extends AbstractFol
             LOGGER.log(Level.WARNING, null, x);
         }
         synchronized (this) {
-            XmlFile file = computation.getDataFile();
-            if (file.exists()) {
-                try {
-                    file.unmarshal(computation);
-                } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Failed to load " + file, e);
-                }
+            try {
+                computation.load();
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to load " + computation, e);
             }
         }
     }

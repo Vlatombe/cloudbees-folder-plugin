@@ -71,9 +71,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import javax.servlet.ServletException;
+import jenkins.model.Loadable;
 import net.jcip.annotations.GuardedBy;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
@@ -89,7 +89,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
  * A particular “run” of {@link ComputedFolder}.
  * @since 4.11-beta-1
  */
-public class FolderComputation<I extends TopLevelItem> extends Actionable implements Queue.Executable, Saveable {
+public class FolderComputation<I extends TopLevelItem> extends Actionable implements Queue.Executable, Loadable, Saveable {
 
     /**
      * Our logger.
@@ -209,6 +209,15 @@ public class FolderComputation<I extends TopLevelItem> extends Actionable implem
         XmlFile dataFile = getDataFile();
         dataFile.write(this);
         SaveableListener.fireOnChange(this, dataFile);
+    }
+
+    @Override
+    public void load() throws IOException {
+        LOGGER.fine(() -> "loading " + this);
+        XmlFile dataFile = getDataFile();
+        if (dataFile.exists()) {
+            dataFile.unmarshal(this);
+        }
     }
 
     @NonNull
